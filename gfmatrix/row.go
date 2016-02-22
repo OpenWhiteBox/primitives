@@ -145,3 +145,15 @@ func (e Row) String() string {
 
 	return string(out)
 }
+
+// OctaveString converts the row into a string that can be imported into Octave.
+func (e Row) OctaveString() string {
+	out := []rune{}
+
+	for _, elem := range e {
+		temp := fmt.Sprintf("%3.3v ", elem)
+		out = append(out, []rune(temp)...)
+	}
+
+	return string(append(out, '\n'))
+}

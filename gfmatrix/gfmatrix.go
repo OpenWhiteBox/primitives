@@ -100,6 +100,37 @@ func (e Matrix) Dup() Matrix {
 	return out
 }
 
+// IsBinary returns true if the matrix contains only zero and one entries.
+func (e Matrix) IsBinary() bool {
+	for _, row := range e {
+		for _, col := range row {
+			if !col.IsZero() && !col.IsOne() {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
+// Equals returns true if two matrices are equal and false otherwise.
+func (e Matrix) Equals(f Matrix) bool {
+	a, _ := e.Size()
+	b, _ := f.Size()
+
+	if a != b {
+		return false
+	}
+
+	for row := 0; row < a; row++ {
+		if !e[row].Equals(f[row]) {
+			return false
+		}
+	}
+
+	return true
+}
+
 // Size returns the dimensions of the matrix in (Rows, Columns) order.
 func (e Matrix) Size() (int, int) {
 	if len(e) == 0 {
@@ -115,6 +146,17 @@ func (e Matrix) String() string {
 	for _, row := range e {
 		out = append(out, []rune(row.String())...)
 		out = append(out, '\n')
+	}
+
+	return string(out)
+}
+
+// OctaveString converts the matrix into a string that can be imported into Octave.
+func (e Matrix) OctaveString() string {
+	out := []rune{}
+
+	for _, row := range e {
+		out = append(out, []rune(row.OctaveString())...)
 	}
 
 	return string(out)

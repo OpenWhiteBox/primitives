@@ -48,3 +48,31 @@ func TestInvert(t *testing.T) {
 		t.Fatalf("Inverse was wrong!")
 	}
 }
+
+func TestStretch(t *testing.T) {
+	rowize := func(in Matrix) Row {
+		out := Row{}
+		for _, row := range in {
+			out = append(out, row...)
+		}
+
+		return out
+	}
+
+	X, _ := GenerateRandom(rand.Reader, 8)
+	Y, _ := GenerateRandom(rand.Reader, 8)
+
+	RX, LX := X.RightStretch(), X.LeftStretch()
+
+	XY := rowize(X.Compose(Y))
+	XYT := RX.Mul(rowize(Y))
+
+	YX := rowize(Y.Compose(X))
+	YXT := LX.Mul(rowize(Y))
+
+	if !XY.Equals(XYT) {
+		t.Fatal("RightStretch is wrong!")
+	} else if !YX.Equals(YXT) {
+		t.Fatal("LeftStretch is wrong!")
+	}
+}
