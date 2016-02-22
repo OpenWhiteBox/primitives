@@ -162,3 +162,23 @@ func DecomposeBlockAffine(in Block) BlockAffine {
 		BlockAdditive: c,
 	}
 }
+
+// DecomposeConcatenatedBlock decomposes an opaque concatenated Block encoding into an explicit one.
+func DecomposeConcatenatedBlock(in Block) (out ConcatenatedBlock) {
+	for pos := 0; pos < 16; pos++ {
+		sbox := SBox{}
+
+		for x := 0; x < 256; x++ {
+			X := [16]byte{}
+			X[pos] = byte(x)
+			Y := in.Encode(X)
+
+			sbox.EncKey[x] = Y[pos]
+			sbox.DecKey[Y[pos]] = X[pos]
+		}
+
+		out[pos] = sbox
+	}
+
+	return
+}

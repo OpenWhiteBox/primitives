@@ -12,6 +12,14 @@ type ByteMultiplication struct {
 	Backwards number.ByteFieldElem
 }
 
+// NewByteMultiplication constructs a new ByteMultiplication encoding from a field element.
+func NewByteMultiplication(forwards number.ByteFieldElem) ByteMultiplication {
+	return ByteMultiplication{
+		Forwards:  forwards,
+		Backwards: forwards.Invert(),
+	}
+}
+
 func (bm ByteMultiplication) Encode(i byte) byte {
 	x, j := number.ByteFieldElem(bm.Forwards), number.ByteFieldElem(i)
 	return byte(x.Mul(j))
