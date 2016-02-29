@@ -18,23 +18,30 @@ func EquivalentBytes(a, b Byte) bool {
 }
 
 // DecomposeByteLinear decomposes an opaque Byte encoding into a ByteLinear encoding.
-func DecomposeByteLinear(in Byte) ByteLinear {
+func DecomposeByteLinear(in Byte) (ByteLinear, bool) {
 	m := matrix.Matrix{}
 	for i := uint(0); i < 8; i++ {
 		m = append(m, matrix.Row{in.Encode(byte(1 << i))})
 	}
 
-	return NewByteLinear(m.Transpose())
+	forwards := m.Transpose()
+	backwards, ok := forwards.Invert()
+
+	return ByteLinear{
+		Forwards:  forwards,
+		Backwards: backwards,
+	}, ok
 }
 
 // DecomposeByteAffine decomposes an opaque Byte encoding into a ByteAffine encoding.
-func DecomposeByteAffine(in Byte) ByteAffine {
+func DecomposeByteAffine(in Byte) (ByteAffine, bool) {
 	c := ByteAdditive(in.Encode(0))
+	M, ok := DecomposeByteLinear(ComposedBytes{in, c})
 
 	return ByteAffine{
-		ByteLinear:   DecomposeByteLinear(ComposedBytes{in, c}),
+		ByteLinear:   M,
 		ByteAdditive: c,
-	}
+	}, ok
 }
 
 // ProbablyEquivalentDoubles returns true if two Double encodings are probably equivalent and false if they're
@@ -54,7 +61,7 @@ func ProbablyEquivalentDoubles(a, b Double) bool {
 }
 
 // DecomposeDoubleLinear decomposes an opaque Double encoding into a DoubleLinear encoding.
-func DecomposeDoubleLinear(in Double) DoubleLinear {
+func DecomposeDoubleLinear(in Double) (DoubleLinear, bool) {
 	m := matrix.Matrix{}
 	for i := 0; i < 2; i++ {
 		for j := uint(0); j < 8; j++ {
@@ -66,17 +73,24 @@ func DecomposeDoubleLinear(in Double) DoubleLinear {
 		}
 	}
 
-	return NewDoubleLinear(m.Transpose())
+	forwards := m.Transpose()
+	backwards, ok := forwards.Invert()
+
+	return DoubleLinear{
+		Forwards:  forwards,
+		Backwards: backwards,
+	}, ok
 }
 
 // DecomposeDoubleAffine decomposes an opaque Double encoding into a DoubleAffine encoding.
-func DecomposeDoubleAffine(in Double) DoubleAffine {
+func DecomposeDoubleAffine(in Double) (DoubleAffine, bool) {
 	c := DoubleAdditive(in.Encode([2]byte{}))
+	M, ok := DecomposeDoubleLinear(ComposedDoubles{in, c})
 
 	return DoubleAffine{
-		DoubleLinear:   DecomposeDoubleLinear(ComposedDoubles{in, c}),
+		DoubleLinear:   M,
 		DoubleAdditive: c,
-	}
+	}, ok
 }
 
 // ProbablyEquivalentWords returns true if two Word encodings are probably equivalent and false if they're definitely
@@ -96,7 +110,7 @@ func ProbablyEquivalentWords(a, b Word) bool {
 }
 
 // DecomposeWordLinear decomposes an opaque Word encoding into a WordLinear encoding.
-func DecomposeWordLinear(in Word) WordLinear {
+func DecomposeWordLinear(in Word) (WordLinear, bool) {
 	m := matrix.Matrix{}
 	for i := 0; i < 4; i++ {
 		for j := uint(0); j < 8; j++ {
@@ -108,17 +122,24 @@ func DecomposeWordLinear(in Word) WordLinear {
 		}
 	}
 
-	return NewWordLinear(m.Transpose())
+	forwards := m.Transpose()
+	backwards, ok := forwards.Invert()
+
+	return WordLinear{
+		Forwards:  forwards,
+		Backwards: backwards,
+	}, ok
 }
 
 // DecomposeWordAffine decomposes an opaque Word encoding into a WordAffine encoding.
-func DecomposeWordAffine(in Word) WordAffine {
+func DecomposeWordAffine(in Word) (WordAffine, bool) {
 	c := WordAdditive(in.Encode([4]byte{}))
+	M, ok := DecomposeWordLinear(ComposedWords{in, c})
 
 	return WordAffine{
-		WordLinear:   DecomposeWordLinear(ComposedWords{in, c}),
+		WordLinear:   M,
 		WordAdditive: c,
-	}
+	}, ok
 }
 
 // ProbablyEquivalentBlocks returns true if two Block encodings are probably equivalent and false if they're definitely
@@ -138,7 +159,7 @@ func ProbablyEquivalentBlocks(a, b Block) bool {
 }
 
 // DecomposeBlockLinear decomposes an opaque Block encoding into a BlockLinear encoding.
-func DecomposeBlockLinear(in Block) BlockLinear {
+func DecomposeBlockLinear(in Block) (BlockLinear, bool) {
 	m := matrix.Matrix{}
 	for i := 0; i < 16; i++ {
 		for j := uint(0); j < 8; j++ {
@@ -150,17 +171,24 @@ func DecomposeBlockLinear(in Block) BlockLinear {
 		}
 	}
 
-	return NewBlockLinear(m.Transpose())
+	forwards := m.Transpose()
+	backwards, ok := forwards.Invert()
+
+	return BlockLinear{
+		Forwards:  forwards,
+		Backwards: backwards,
+	}, ok
 }
 
 // DecomposeBlockAffine decomposes an opaque Block encoding into a BlockAffine encoding.
-func DecomposeBlockAffine(in Block) BlockAffine {
+func DecomposeBlockAffine(in Block) (BlockAffine, bool) {
 	c := BlockAdditive(in.Encode([16]byte{}))
+	M, ok := DecomposeBlockLinear(ComposedBlocks{in, c})
 
 	return BlockAffine{
-		BlockLinear:   DecomposeBlockLinear(ComposedBlocks{in, c}),
+		BlockLinear:   M,
 		BlockAdditive: c,
-	}
+	}, ok
 }
 
 // DecomposeConcatenatedBlock decomposes an opaque concatenated Block encoding into an explicit one.
