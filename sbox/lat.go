@@ -1,9 +1,9 @@
 package sbox
 
 import (
-  "fmt"
+	"fmt"
 
-  "github.com/OpenWhiteBox/primitives/encoding"
+	"github.com/OpenWhiteBox/primitives/encoding"
 )
 
 var weight [4]uint64 = [4]uint64{
@@ -12,8 +12,8 @@ var weight [4]uint64 = [4]uint64{
 }
 
 func dotProduct(a, b byte) byte {
-  c := a & b
-  return byte(weight[c/64] >> (c % 64)) & 1
+	c := a & b
+	return byte(weight[c/64]>>(c%64)) & 1
 }
 
 // LAT is a linear approximation table of a function.
@@ -21,27 +21,27 @@ type LAT [256][256]int
 
 // NewLAT generates the LAT of a function.
 func NewLAT(in encoding.Byte) *LAT {
-  out := LAT{}
+	out := LAT{}
 
-  for a := 0; a < 256; a++ {
-    for b := 0; b < 256; b++ {
-      for x := 0; x < 256; x++ {
-        left := dotProduct(byte(a), in.Encode(byte(x)))
-        right := dotProduct(byte(b), byte(x))
+	for a := 0; a < 256; a++ {
+		for b := 0; b < 256; b++ {
+			for x := 0; x < 256; x++ {
+				left := dotProduct(byte(a), in.Encode(byte(x)))
+				right := dotProduct(byte(b), byte(x))
 
-        if left == right {
-          out[a][b]++
-        }
-      }
+				if left == right {
+					out[a][b]++
+				}
+			}
 
-      out[a][b] -= 128
-    }
-  }
+			out[a][b] -= 128
+		}
+	}
 
-  return &out
+	return &out
 }
 
-func (lat *LAT) Uniform() int {
+func (lat *LAT) Linearity() int {
 	out := 0
 
 	for _, row := range lat[1:] {
@@ -56,43 +56,43 @@ func (lat *LAT) Uniform() int {
 }
 
 func (lat *LAT) Map() []int {
-  max, min := 0, 0
+	max, min := 0, 0
 
-  for x := 0; x < 256; x++ {
-    for y := 0; y < 256; y++ {
-      if lat[x][y] < min {
-        min = lat[x][y]
-      } else if lat[x][y] > max {
-        max = lat[x][y]
-      }
-    }
-  }
+	for x := 0; x < 256; x++ {
+		for y := 0; y < 256; y++ {
+			if lat[x][y] < min {
+				min = lat[x][y]
+			} else if lat[x][y] > max {
+				max = lat[x][y]
+			}
+		}
+	}
 
-  out := make([]int, max-min+1)
+	out := make([]int, max-min+1)
 
-  for x := 0; x < 256; x++ {
-    for y := 0; y < 256; y++ {
-      out[lat[x][y]-min]++
-    }
-  }
+	for x := 0; x < 256; x++ {
+		for y := 0; y < 256; y++ {
+			out[lat[x][y]-min]++
+		}
+	}
 
-  return out
+	return out
 }
 
 // Equals returns whether or not this LAT equals the given LAT.
 func (lat *LAT) Equals(given *LAT) bool {
-  for row := 0; row < 256; row++ {
-    if lat[row] != given[row] {
-      return false
-    }
-  }
+	for row := 0; row < 256; row++ {
+		if lat[row] != given[row] {
+			return false
+		}
+	}
 
-  return true
+	return true
 }
 
 // String serializes the LAT into a string.
 func (lat *LAT) String() string {
-  out := []rune{}
+	out := []rune{}
 
 	for _, row := range lat {
 		for _, col := range row {
