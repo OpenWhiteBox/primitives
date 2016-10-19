@@ -1,6 +1,10 @@
 // Package matrix implements basic operations on matrices in GF(2) and the random generation of new ones.
 package matrix
 
+import (
+	"fmt"
+)
+
 func rowsToColumns(x int) int {
 	out := x / 8
 	if x%8 != 0 {
@@ -172,5 +176,22 @@ func (e Matrix) OctaveString() string {
 		out = append(out, []rune(row.OctaveString())...)
 	}
 
+	return string(out)
+}
+
+func (e Matrix) GoString() string {
+	out := []rune("matrix.Matrix{\n")
+
+	for _, row := range e {
+		out = append(out, []rune("\tmatrix.Row{")...)
+
+		for _, elem := range row[:len(row)-1] {
+			out = append(out, []rune(fmt.Sprintf("0x%2.2x, ", elem))...)
+		}
+
+		out = append(out, []rune(fmt.Sprintf("0x%2.2x},\n", row[len(row)-1]))...)
+	}
+
+	out = append(out, '}')
 	return string(out)
 }

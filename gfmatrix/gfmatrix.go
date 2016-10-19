@@ -1,6 +1,10 @@
 // Package gfmatrix implements basic operations on matrices over Rijndael's field and the random generation of new ones.
 package gfmatrix
 
+import (
+	"fmt"
+)
+
 // Matrix represents a GF(2^8)-matrix.
 type Matrix []Row
 
@@ -159,5 +163,22 @@ func (e Matrix) OctaveString() string {
 		out = append(out, []rune(row.OctaveString())...)
 	}
 
+	return string(out)
+}
+
+func (e Matrix) GoString() string {
+	out := []rune("gfmatrix.Matrix{\n")
+
+	for _, row := range e {
+		out = append(out, []rune("\tgfmatrix.Row{")...)
+
+		for _, elem := range row[:len(row)-1] {
+			out = append(out, []rune(fmt.Sprintf("0x%2.2x, ", elem))...)
+		}
+
+		out = append(out, []rune(fmt.Sprintf("0x%2.2x},\n", row[len(row)-1]))...)
+	}
+
+	out = append(out, '}')
 	return string(out)
 }
