@@ -23,18 +23,29 @@ func TestByteFieldElemInvert(t *testing.T) {
 	}
 }
 
-func TestArrayFieldElemMultiplicationArbitrary(t *testing.T) {
-	x := ArrayFieldElem{0x02, 0x01, 0x01, 0x03}
-	y := ArrayFieldElem{0x0e, 0x09, 0x0d, 0x0b}
+func TestFactor(t *testing.T) {
+	for w := 1; w < 256; w++ {
+		x := ByteFieldElem(w)
+
+		y := ByteFieldElem(w).Mul(x).Mul(x).Mul(x)
+		if y == 255 {
+			t.Log(x)
+		}
+	}
+}
+
+func TestArrayRingElemMultiplicationArbitrary(t *testing.T) {
+	x := ArrayRingElem{0x02, 0x01, 0x01, 0x03}
+	y := ArrayRingElem{0x0e, 0x09, 0x0d, 0x0b}
 
 	if !x.Mul(y).IsOne() || !y.Mul(x).IsOne() {
 		t.Fatalf("Multiplication is wrong, element * inverse != 1")
 	}
 }
 
-func TestArrayFieldElemMultiplicationOne(t *testing.T) {
-	x := ArrayFieldElem{0x02, 0x01, 0x01, 0x03}
-	y := ArrayFieldElem{0x01, 0x00, 0x00, 0x00}
+func TestArrayRingElemMultiplicationOne(t *testing.T) {
+	x := ArrayRingElem{0x02, 0x01, 0x01, 0x03}
+	y := ArrayRingElem{0x01, 0x00, 0x00, 0x00}
 
 	xy, yx := x.Mul(y), y.Mul(x)
 
@@ -45,18 +56,18 @@ func TestArrayFieldElemMultiplicationOne(t *testing.T) {
 	}
 }
 
-func TestArrayFieldElemMultiplicationZero(t *testing.T) {
-	x := ArrayFieldElem{0x02, 0x01, 0x01, 0x03}
-	y := ArrayFieldElem{0x00, 0x00, 0x00, 0x00}
+func TestArrayRingElemMultiplicationZero(t *testing.T) {
+	x := ArrayRingElem{0x02, 0x01, 0x01, 0x03}
+	y := ArrayRingElem{0x00, 0x00, 0x00, 0x00}
 
 	if !x.Mul(y).IsZero() || !y.Mul(x).IsZero() {
 		t.Fatalf("Multiplication is wrong, element * 0 != 0")
 	}
 }
 
-func TestArrayFieldElemMultiplicationInvert(t *testing.T) {
-	x := ArrayFieldElem{0x02, 0x01, 0x01, 0x03}
-	y := ArrayFieldElem{0x00, 0x00, 0x00, 0x00}
+func TestArrayRingElemMultiplicationInvert(t *testing.T) {
+	x := ArrayRingElem{0x02, 0x01, 0x01, 0x03}
+	y := ArrayRingElem{0x00, 0x00, 0x00, 0x00}
 
 	if _, ok := x.Invert(); !ok {
 		t.Fatal("Invert is wrong, failed to find inverse of unit.")

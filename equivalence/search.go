@@ -81,7 +81,7 @@ func learn(f, g encoding.Byte, A, B *matrix.DeductiveMatrix, posA, posB int) (po
 			yT := matrix.Row{f.Encode(y[0])}
 
 			learned := B.Assert(xT, yT)
-			learning = learned || learned
+			learning = learning || learned
 		}
 
 		// Lets say that we know two input-output pairs of B: f(Ax) = B * g(x) and f(Ay) = B * g(y). Because B is linear,

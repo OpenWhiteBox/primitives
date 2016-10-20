@@ -16,7 +16,7 @@ type Linear struct {
 	A, B encoding.ByteLinear
 }
 
-// Affine is an affine equivalence--a part of affine transformations such that...
+// Affine is an affine equivalence--a part of affine transformations such that f(A(x)) = B(g(x)) for all x.
 type Affine struct {
 	A, B encoding.ByteAffine
 }
@@ -47,7 +47,8 @@ func FindLinear(f, g encoding.Byte, cap int) []Linear {
 	return search(f, g, matrix.NewDeductiveMatrix(8), matrix.NewDeductiveMatrix(8), 0, 0, cap)
 }
 
-// FindAffine finds affine equivalences between f and g. cap is the maximum number of equivalences to return.
+// FindAffine finds affine equivalences between f and g. cap is the maximum number of equivalences to return. (Not
+// Implemented.)
 func FindAffine(f, g encoding.Byte, cap int) []Affine {
 	return nil
 }
